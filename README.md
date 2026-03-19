@@ -1,4 +1,4 @@
-# Aliyun Use for OpenClaw
+# Aliyun Bailian(百炼) for OpenClaw
 
 This is an OpenClaw skill that provides integration with Alibaba Cloud Bailian LLM via DashScope Anthropic API.
 
