@@ -1,6 +1,7 @@
 ---
-name: ai-aliyun
-description: "Call Alibaba Cloud Bailian LLM via DashScope Anthropic API - supports Qwen, GLM, Kimi, MiniMax models, plus translation. Use when you need general-purpose LLM chat, code generation, reasoning, or language translation."
+name: aliyun-use
+version: 0.1.0
+description: "Aliyun Bailian(百炼) for LLM chat, and language translation. Use when you need to  generate code, generate text with LLMs, or translate between languages."
 metadata:
   openclaw:
     requires:
@@ -13,13 +14,13 @@ metadata:
       - win32
 ---
 
-# AliYun Bailian LLM
+# Aliyun Bailian(百炼) for OpenClaw
 
-Call Alibaba Cloud Bailian LLM models via the DashScope API.
+Call Alibaba Cloud Bailian (百炼) LLM models via the DashScope API.
 
 ## Setup
 
-Get your API key from: https://bailian.console.aliyun.com/
+Get your API key from: https://bailian.console.aliyun.com/ 
 
 Set the environment variable:
 ```bash
