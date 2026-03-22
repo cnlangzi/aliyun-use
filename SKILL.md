@@ -1,7 +1,7 @@
 ---
 name: aliyun-use
-version: 0.1.0
-description: "Aliyun Bailian(百炼) for LLM chat, and language translation. Use when you need to  generate code, generate text with LLMs, or translate between languages."
+version: 0.2.0
+description: "Aliyun Bailian AI tools for Node.js - chat, translation. Use when you need LLM capabilities with Qwen or other Aliyun models."
 metadata:
   openclaw:
     requires:
@@ -14,109 +14,105 @@ metadata:
       - win32
 ---
 
-# Aliyun Bailian(百炼) for OpenClaw
+# Aliyun Use - Node.js AI Tools
 
-Call Alibaba Cloud Bailian (百炼) LLM models via the DashScope API.
+Aliyun Bailian 百炼 AI 工具集，提供对话、翻译等功能。Node.js 实现。
 
-## Setup
+## 统一接口（与其他 provider 接口一致）
 
-Get your API key from: https://bailian.console.aliyun.com/ 
+```javascript
+import { chat, translate, understandImage, webSearch } from 'aliyun-use/scripts/index.js';
 
-Set the environment variable:
+// 对话
+await chat('你好');                              // 简单对话
+await chat('写代码', { model: 'qwen3.5-plus' });  // 指定模型
+await chat('继续', { history: [{role:'user',content:'你好'}] }); // 带历史
+
+// 翻译
+await translate('hello', { to: 'Chinese' });
+await translate('你好', { to: 'English', from: 'zh' });
+
+// 搜索（基于模型知识库）
+await webSearch('今日新闻');
+```
+
+## 返回格式
+
+```javascript
+// 成功
+{ success: true, result: { content: '...' } }
+
+// 失败
+{ success: false, error: 'error message' }
+```
+
+## CLI 用法
+
 ```bash
-export ALIYUN_BAILIAN_API_KEY="your-api-key"
-export ALIYUN_BAILIAN_API_HOST="https://coding.dashscope.aliyuncs.com/apps/anthropic"  # optional, default provided
+# 对话
+node scripts/index.js chat "你好"
+
+# 翻译
+node scripts/index.js translate "hello" --to Chinese
+
+# 搜索
+node scripts/index.js search "news"
 ```
 
-## CLI Commands
+## 环境变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `ALIYUN_BAILIAN_API_KEY` | - | 必填，API Key |
+| `ALIYUN_BAILIAN_API_HOST` | `https://coding.dashscope.aliyuncs.com/apps/anthropic` | API 端点 |
+| `ALIYUN_MODEL` | `qwen3.5-plus` | 对话模型 |
+
+获取 API Key: https://bailian.console.aliyun.com/
+
+## 函数签名
+
+### chat(message, opts)
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| message | string | - | 用户消息 |
+| opts.system | string | null | 系统提示 |
+| opts.model | string | qwen3.5-plus | 模型名 |
+| opts.temperature | number | 0.7 | 温度 0-1 |
+| opts.max_tokens | number | 2048 | 最大 token |
+| opts.stream | boolean | false | 流式输出 |
+| opts.history | array | null | 历史记录 |
+
+### translate(text, opts)
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| text | string | - | 待翻译文本 |
+| opts.to | string | English | 目标语言 |
+| opts.from | string | auto | 源语言 |
+| opts.model | string | qwen3.5-plus | 模型名 |
+
+### understandImage(prompt, imagePath, opts)
+
+**注意**: Aliyun 暂不支持此接口，建议使用 `kimi-use` 或 `minimax-use`。
+
+### webSearch(query, opts)
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| query | string | - | 搜索查询 |
+| opts.model | string | qwen3.5-plus | 模型名 |
+
+## 可用模型
+
+- `qwen3.5-plus` - 旗舰模型
+- `qwen3-max` - 最大模型
+- `qwen3-coder-next` - 编码模型
+- `qwen3-coder-plus` - 编码增强
+
+## 安装依赖
 
 ```bash
-python -m scripts chat --model qwen3.5-plus --messages '[{"role": "user", "content": "Hello"}]'
-python -m scripts translate --text "Hello" --target-lang zh
-python -m scripts models
+cd ~/workspace/skills/aliyun-use
+npm install
 ```
-
-## Commands Overview
-
-| Command | What it does |
-|---------|-------------|
-| `chat` | General-purpose chat completion with Qwen, GLM, Kimi, MiniMax models |
-| `translate` | Translate text between languages |
-| `models` | List all available models |
-
-## Chat
-
-General-purpose chat completion via DashScope Anthropic API.
-
-### Usage
-```bash
-python -m scripts chat --model qwen3.5-plus --messages '[{"role": "user", "content": "Hello"}]'
-```
-
-### Parameters
-
-- `--model` (string, optional) — Model name. Default: `qwen3.5-plus`
-- `--messages` (string, required) — JSON array of `{role, content}`. Roles: `system`, `user`, `assistant`
-- `--temperature` (float, optional) — Sampling temperature 0-1. Default: `0.7`
-- `--max-tokens` (integer, optional) — Max tokens to generate. Default: `2048`
-- `--stream` (boolean, optional) — Enable streaming. Default: `false`
-
-### Available Models
-
-**Flagship:** `qwen3.5-plus`, `qwen3-max-2026-01-23`
-
-**Coder:** `qwen3-coder-next`, `qwen3-coder-plus`
-
-**Other:** `glm-5`, `glm-4.7`, `kimi-k2.5`, `MiniMax-M2.5`
-
-## Translate
-
-Translate text between languages using the LLM.
-
-### Usage
-```bash
-python -m scripts translate --text "Hello" --target-lang zh
-python -m scripts translate --text "你好" --target-lang en --source-lang zh
-```
-
-### Parameters
-
-- `--text` (string, required) — Text to translate
-- `--target-lang` (string, optional) — Target language code. Default: `en`
-- `--source-lang` (string, optional) — Source language code. Default: `auto`
-
-### Supported Languages
-
-`en` (English), `zh` (Chinese), `ja` (Japanese), `ko` (Korean), `es` (Spanish), `fr` (French), `de` (German), `ru` (Russian), `ar` (Arabic), `pt` (Portuguese), `it` (Italian), `th` (Thai), `vi` (Vietnamese), `id` (Indonesian)
-
-## Python Usage
-
-```python
-from scripts import chat, translate
-
-# Chat
-result = chat(messages=[{"role": "user", "content": "Hello"}], model="qwen3.5-plus")
-
-# Translate
-result = translate(text="Hello", target_lang="zh")
-```
-
-## Response Format
-
-```json
-{ "success": true, "result": {...} }
-{ "success": false, "error": "error message" }
-```
-
-## Notes
-
-- Default API host: `https://coding.dashscope.aliyuncs.com/apps/anthropic` (set via `ALIYUN_BAILIAN_API_HOST`)
-- The API uses Anthropic-compatible format — messages are converted to Anthropic API format internally
-- Coding Plan API key (`sk-sp-xxx`) is different from regular DashScope API key
-- For reasoning tasks: try `qwen3-max-2026-01-23` or `kimi-k2.5`
-- For coding tasks: use `qwen3-coder-next` or `qwen3-coder-plus`
-
-## Learn More
-
-- Full API documentation: `references/API.md`
-- Available models: `assets/models.json`
